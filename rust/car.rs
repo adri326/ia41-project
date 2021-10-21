@@ -1,12 +1,12 @@
 use super::{WIDTH, HEIGHT};
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum Direction {
     Horizontal,
     Vertical,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Car {
     pub x: usize,
     pub y: usize,
@@ -14,6 +14,17 @@ pub struct Car {
     pub length: usize,
 }
 
+impl Car {
+    pub fn get_coords(&self, index: usize) -> (usize, usize) {
+        if let Direction::Horizontal = self.direction {
+            (self.x + index, self.y)
+        } else {
+            (self.x, self.y + index)
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct CarMove {
     pub from: (usize, usize),
     pub to: (usize, usize),
@@ -59,9 +70,9 @@ impl<'a> Iterator for CarIter<'a> {
         let (detx, dety) = if self.orientation {
             let (x, y, len) = (self.car.x as isize, self.car.y as isize, self.car.length as isize);
             if let Direction::Horizontal = self.car.direction {
-                (x + offset + len, y)
+                (x + offset + len - 1, y)
             } else {
-                (x, y + offset + len)
+                (x, y + offset + len - 1)
             }
         } else {
             let (x, y) = (self.car.x as isize, self.car.y as isize);
