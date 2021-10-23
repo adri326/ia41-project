@@ -1,4 +1,6 @@
+#[allow(unused_imports)]
 use super::board::{Board, BoardIter};
+#[allow(unused_imports)]
 use super::{WIDTH, HEIGHT};
 use super::car::CarMove;
 use std::collections::{VecDeque, HashSet};
@@ -10,11 +12,11 @@ pub fn target(board: &Board) -> bool {
 
 pub fn bfs(initial: Board) -> Option<Vec<CarMove>> {
     let mut queue: VecDeque<(Board, Vec<CarMove>)> = VecDeque::new();
-    let mut visited: HashSet<[bool; WIDTH * HEIGHT]> = HashSet::new();
+    let mut visited: HashSet<u64> = HashSet::new();
+    visited.insert(initial.get_board_hash());
     queue.push_back((initial, Vec::new()));
 
     while let Some((board, moves)) = queue.pop_front() {
-        visited.insert(board.board.clone());
         // println!("{:?}", moves.iter().map(|m| (m.index, m.to.0, m.to.1)).collect::<Vec<_>>());
         for mv in board.iter() {
             let new_board = board.apply(&mv);
@@ -22,8 +24,12 @@ pub fn bfs(initial: Board) -> Option<Vec<CarMove>> {
             moves.push(mv);
             if target(&new_board) {
                 return Some(moves);
-            } else if !visited.contains(&new_board.board) {
-                queue.push_back((new_board, moves));
+            } else {
+                let hash = new_board.get_board_hash();
+                if !visited.contains(&hash) {
+                    visited.insert(hash);
+                    queue.push_back((new_board, moves));
+                }
             }
         }
     }

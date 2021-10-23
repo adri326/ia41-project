@@ -1,4 +1,5 @@
 use super::{WIDTH, HEIGHT};
+use super::board::Board;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum Direction {
@@ -35,14 +36,14 @@ pub struct CarMove {
 pub struct CarIter<'a> {
     car: &'a Car,
     index: usize,
-    board: &'a [bool; WIDTH * HEIGHT],
+    board: &'a Board,
 
     distance: usize,
     orientation: bool,
 }
 
 impl<'a> CarIter<'a> {
-    pub fn from_parts((car, index, board, distance, orientation): (&'a Car, usize, &'a [bool; WIDTH * HEIGHT], usize, bool)) -> Self {
+    pub fn from_parts((car, index, board, distance, orientation): (&'a Car, usize, &'a Board, usize, bool)) -> Self {
         Self {
             car,
             index,
@@ -83,7 +84,7 @@ impl<'a> Iterator for CarIter<'a> {
             }
         };
 
-        if detx < 0 || detx >= WIDTH as isize || dety < 0 || dety >= HEIGHT as isize || self.board[detx as usize + dety as usize * WIDTH] {
+        if detx < 0 || detx >= WIDTH as isize || dety < 0 || dety >= HEIGHT as isize || !self.board.is_square_empty(detx as usize, dety as usize) {
             if self.orientation {
                 None
             } else {

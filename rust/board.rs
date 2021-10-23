@@ -1,11 +1,13 @@
 use super::{WIDTH, HEIGHT};
 use super::car::{Car, CarIter, CarMove, Direction};
 use std::collections::HashMap;
+use fasthash::MetroHasher;
+use std::hash::Hasher;
 
 #[derive(Clone, Debug)]
 pub struct Board {
     pub cars: Vec<Car>,
-    pub board: [bool; WIDTH * HEIGHT],
+    board: [bool; WIDTH * HEIGHT],
 }
 
 impl std::cmp::PartialEq for Board {
@@ -104,7 +106,7 @@ impl Board {
         // Compile car hashmap to vec
         let mut cars: Vec<(usize, Car)> = cars.into_iter().collect();
         cars.sort_unstable_by_key(|(i, _c)| *i);
-        let mut cars: Vec<Car> = cars.into_iter().map(|(_i, c)| c).collect();
+        let cars: Vec<Car> = cars.into_iter().map(|(_i, c)| c).collect();
 
         // Compute bitmap
         let mut board = [false; WIDTH * HEIGHT];
@@ -128,7 +130,7 @@ impl Board {
             cars.push(CarIter::from_parts((
                 car,
                 index,
-                &self.board,
+                &self,
                 0,
                 false,
             )));
@@ -163,5 +165,24 @@ impl Board {
             cars: new_cars,
             board: new_board,
         }
+    }
+
+    pub fn is_square_empty(&self, x: usize, y: usize) -> bool {
+        if x >= WIDTH || y >= HEIGHT {
+            true
+        } else {
+            !self.board[x + y * WIDTH]
+        }
+    }
+
+    pub fn get_board_hash(&self) -> u64 {
+        let mut hasher = MetroHasher::default();
+        for car in self.cars.iter() {
+            hasher.write_usize(car.x);
+            hasher.write_usize(car.y);
+            hasher.write_usize(car.length);
+            hasher.write_u8(if car.direction == Direction::Horizontal { 1 } else { 0 });
+        }
+        hasher.finish()
     }
 }
