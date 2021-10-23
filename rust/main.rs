@@ -21,6 +21,12 @@ fn main() -> std::io::Result<()> {
 
     let board = Board::from_string(&contents).expect("Error while parsing input file!");
     println!("{:#?}", board);
+
+    // Used for profiling
+    // for _ in 0..100 {
+    //     tree::bfs(board.clone());
+    // }
+
     let solution = tree::bfs(board);
 
     if let Some(solution) = solution {

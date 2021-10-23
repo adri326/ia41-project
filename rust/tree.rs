@@ -20,15 +20,16 @@ pub fn bfs(initial: Board) -> Option<Vec<CarMove>> {
         // println!("{:?}", moves.iter().map(|m| (m.index, m.to.0, m.to.1)).collect::<Vec<_>>());
         for mv in board.iter() {
             let new_board = board.apply(&mv);
-            let mut moves = moves.clone();
-            moves.push(mv);
+            let mut new_moves = Vec::with_capacity(moves.len() + 1);
+            new_moves.extend_from_slice(&moves);
+            new_moves.push(mv);
             if target(&new_board) {
-                return Some(moves);
+                return Some(new_moves);
             } else {
                 let hash = new_board.get_board_hash();
                 if !visited.contains(&hash) {
                     visited.insert(hash);
-                    queue.push_back((new_board, moves));
+                    queue.push_back((new_board, new_moves));
                 }
             }
         }
