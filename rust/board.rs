@@ -7,7 +7,12 @@ use std::hash::Hasher;
 #[derive(Clone, Debug)]
 pub struct Board {
     pub cars: Vec<Car>,
-    board: [bool; WIDTH * HEIGHT],
+
+    #[cfg(not(feature = "bitboard"))]
+    bitboard: [bool; WIDTH * HEIGHT],
+
+    #[cfg(feature = "bitboard")]
+    bitboard: u64,
 }
 
 impl std::cmp::PartialEq for Board {
@@ -109,17 +114,11 @@ impl Board {
         let cars: Vec<Car> = cars.into_iter().map(|(_i, c)| c).collect();
 
         // Compute bitmap
-        let mut board = [false; WIDTH * HEIGHT];
-        for car in cars.iter() {
-            for l in 0..car.length {
-                let (x, y) = car.get_coords(l);
-                board[x + y * WIDTH] = true;
-            }
-        }
+        let bitboard = compute_bitboard(&cars);
 
         Some(Board {
             cars,
-            board
+            bitboard
         })
     }
 
@@ -143,12 +142,12 @@ impl Board {
 
     pub fn apply(&self, mv: &CarMove) -> Board {
         let mut new_cars = self.cars.clone();
-        let mut new_board = self.board.clone();
+        let mut new_board = self.bitboard.clone();
 
         // replace car in bitmap with zeroes
         for l in 0..new_cars[mv.index].length {
             let (x, y) = new_cars[mv.index].get_coords(l);
-            new_board[x + y * WIDTH] = false;
+            set_bitboard(&mut new_board, x, y, false);
         }
 
         // Update car position
@@ -158,12 +157,12 @@ impl Board {
         // replace car in bitmap with ones
         for l in 0..new_cars[mv.index].length {
             let (x, y) = new_cars[mv.index].get_coords(l);
-            new_board[x + y * WIDTH] = true;
+            set_bitboard(&mut new_board, x, y, true);
         }
 
         Board {
             cars: new_cars,
-            board: new_board,
+            bitboard: new_board,
         }
     }
 
@@ -171,18 +170,87 @@ impl Board {
         if x >= WIDTH || y >= HEIGHT {
             true
         } else {
-            !self.board[x + y * WIDTH]
+            !get_bitboard(&self.bitboard, x, y)
         }
     }
 
+    #[cfg(not(feature = "bitboard"))]
     pub fn get_board_hash(&self) -> u64 {
         let mut hasher = MetroHasher::default();
         for car in self.cars.iter() {
-            hasher.write_usize(car.x);
-            hasher.write_usize(car.y);
-            hasher.write_usize(car.length);
+            hasher.write_u8(car.x as u8);
+            hasher.write_u8(car.y as u8);
+            hasher.write_u8(car.length as u8);
             hasher.write_u8(if car.direction == Direction::Horizontal { 1 } else { 0 });
         }
         hasher.finish()
     }
+
+    #[cfg(feature = "bitboard")]
+    pub fn get_board_hash(&self) -> u64 {
+        let mut hasher = MetroHasher::default();
+        for car in self.cars.iter() {
+            hasher.write_u8(car.x as u8);
+            hasher.write_u8(car.y as u8);
+        }
+        hasher.write_u64(self.bitboard);
+        hasher.finish()
+    }
+}
+
+#[cfg(not(feature = "bitboard"))]
+fn compute_bitboard(cars: &[Car]) -> [bool; WIDTH * HEIGHT] {
+    let mut res = [false; WIDTH * HEIGHT];
+    for car in cars.iter() {
+        for l in 0..car.length {
+            let (x, y) = car.get_coords(l);
+            res[x + y * WIDTH] = true;
+        }
+    }
+    res
+}
+
+#[cfg(feature = "bitboard")]
+fn compute_bitboard(cars: &[Car]) -> u64 {
+    let mut res = 0;
+
+    for car in cars.iter() {
+        for l in 0..car.length {
+            let (x, y) = car.get_coords(l);
+            res |= 1 << (x + y * WIDTH);
+        }
+    }
+
+    res
+}
+
+#[cfg(not(feature = "bitboard"))]
+#[inline]
+fn set_bitboard(bitboard: &mut [bool; WIDTH * HEIGHT], x: usize, y: usize, value: bool) {
+    bitboard[x + y * WIDTH] = value;
+}
+
+#[cfg(feature = "bitboard")]
+#[inline]
+fn set_bitboard(bitboard: &mut u64, x: usize, y: usize, value: bool) {
+    let position = 1 << (x + y * WIDTH);
+    if value {
+        *bitboard |= position;
+    } else {
+        *bitboard &= !position;
+    }
+}
+
+#[cfg(not(feature = "bitboard"))]
+#[inline]
+fn get_bitboard(bitboard: &[bool; WIDTH * HEIGHT], x: usize, y: usize) -> bool {
+    bitboard[x + y * WIDTH]
+}
+
+
+#[cfg(feature = "bitboard")]
+#[inline]
+fn get_bitboard(bitboard: &u64, x: usize, y: usize) -> bool {
+    let position = 1 << (x + y * WIDTH);
+    bitboard & position != 0
 }
