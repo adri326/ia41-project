@@ -30,5 +30,15 @@ pub fn bfs_benchmark(c: &mut Criterion) {
     c.bench_function("bfs trivial", |b| b.iter(|| tree::bfs(board_trivial.clone())));
 }
 
-criterion_group!(benches, bfs_benchmark);
+pub fn dfs_benchmark(c: &mut Criterion) {
+    let board_complex = load_board("boards/complex.txt");
+    let board_simple = load_board("boards/simple.txt");
+    let board_trivial = load_board("boards/trivial.txt");
+
+    // c.bench_function("iddfs complex", |b| b.iter(|| tree::iddfs(board_complex.clone(), None)));
+    c.bench_function("iddfs simple", |b| b.iter(|| tree::iddfs(board_simple.clone(), None)));
+    c.bench_function("iddfs trivial", |b| b.iter(|| tree::iddfs(board_trivial.clone(), None)));
+}
+
+criterion_group!(benches, bfs_benchmark, dfs_benchmark);
 criterion_main!(benches);
