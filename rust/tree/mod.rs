@@ -4,8 +4,11 @@ use super::board::{Board, BoardIter};
 use super::{WIDTH, HEIGHT};
 use super::car::CarMove;
 use std::collections::{VecDeque, HashSet};
+use std::rc::Rc;
 
 pub mod hash;
+pub mod list;
+use list::{RcLinkedList, RcNode};
 
 #[inline]
 pub fn target(board: &Board) -> bool {
@@ -13,26 +16,23 @@ pub fn target(board: &Board) -> bool {
 }
 
 pub fn bfs(initial: Board) -> Option<Vec<CarMove>> {
-    let mut queue: VecDeque<(Board, Vec<CarMove>)> = VecDeque::new();
+    let mut queue: VecDeque<(Board, RcNode<CarMove>)> = VecDeque::new();
     let mut visited: HashSet<u64, hash::IdentityHashBuilder> = HashSet::with_hasher(hash::IdentityHashBuilder::new());
-    // let mut visited: HashSet<u64> = HashSet::new();
     visited.insert(initial.get_board_hash());
-    queue.push_back((initial, Vec::new()));
+    queue.push_back((initial, None));
 
     while let Some((board, moves)) = queue.pop_front() {
-        // println!("{:?}", moves.iter().map(|m| (m.index, m.to.0, m.to.1)).collect::<Vec<_>>());
         for mv in board.iter() {
             let new_board = board.apply(&mv);
-            let mut new_moves = Vec::with_capacity(moves.len() + 1);
-            new_moves.extend_from_slice(&moves);
-            new_moves.push(mv);
+            let new_moves = Rc::new(RcLinkedList::new(mv, &moves));
+
             if target(&new_board) {
-                return Some(new_moves);
+                return Some(new_moves.into_iter_rc().collect());
             } else {
                 let hash = new_board.get_board_hash();
                 if !visited.contains(&hash) {
                     visited.insert(hash);
-                    queue.push_back((new_board, new_moves));
+                    queue.push_back((new_board, Some(new_moves)));
                 }
             }
         }
