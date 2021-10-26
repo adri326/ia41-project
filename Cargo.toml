@@ -8,9 +8,11 @@ edition = "2018"
 [features]
 default = ["bitboard"]
 bitboard = []
+precise_hash = []
 
 [dependencies]
 fasthash = "0.4.0"
+rand = "0.8"
 
 [dependencies.criterion]
 version = "0.3"

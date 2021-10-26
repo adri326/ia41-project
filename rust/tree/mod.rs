@@ -5,6 +5,8 @@ use super::{WIDTH, HEIGHT};
 use super::car::CarMove;
 use std::collections::{VecDeque, HashSet};
 
+pub mod hash;
+
 #[inline]
 pub fn target(board: &Board) -> bool {
     board.cars[0].x == WIDTH - 2
@@ -12,7 +14,8 @@ pub fn target(board: &Board) -> bool {
 
 pub fn bfs(initial: Board) -> Option<Vec<CarMove>> {
     let mut queue: VecDeque<(Board, Vec<CarMove>)> = VecDeque::new();
-    let mut visited: HashSet<u64> = HashSet::new();
+    let mut visited: HashSet<u64, hash::IdentityHashBuilder> = HashSet::with_hasher(hash::IdentityHashBuilder::new());
+    // let mut visited: HashSet<u64> = HashSet::new();
     visited.insert(initial.get_board_hash());
     queue.push_back((initial, Vec::new()));
 

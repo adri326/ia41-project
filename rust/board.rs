@@ -2,6 +2,7 @@ use super::{WIDTH, HEIGHT};
 use super::car::{Car, CarIter, CarMove, Direction};
 use std::collections::HashMap;
 use fasthash::MetroHasher;
+// use fasthash::xx::Hasher64;
 use std::hash::Hasher;
 
 #[derive(Clone, Debug)]
@@ -189,9 +190,11 @@ impl Board {
     #[cfg(feature = "bitboard")]
     pub fn get_board_hash(&self) -> u64 {
         let mut hasher = MetroHasher::default();
-        for car in self.cars.iter() {
-            hasher.write_u8(car.x as u8);
-            hasher.write_u8(car.y as u8);
+        if cfg!(feature = "precise_hash") {
+            for car in self.cars.iter() {
+                hasher.write_u8(car.x as u8);
+                hasher.write_u8(car.y as u8);
+            }
         }
         hasher.write_u64(self.bitboard);
         hasher.finish()
