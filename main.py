@@ -206,9 +206,9 @@ def DFS_TryCarMove(grid,cars):
                             if DFS_TryCarMove(grid,cars)==True:
                                 return True
                             #Backtrack
+                            car["column"]-=1
                             grid[car["row"]][car["column"]+car["length"]]=0
                             grid[car["row"]][car["column"]]=car["color_index"]
-                            car["column"]-=1
 
                         if grid[car["row"]][car["column"]-1]==0: #if can move left
                             grid[car["row"]][car["column"]+car["length"]-1]=0
@@ -217,9 +217,9 @@ def DFS_TryCarMove(grid,cars):
                             if DFS_TryCarMove(grid,cars)==True:
                                 return True
                             #Backtrack
+                            car["column"]+=1
                             grid[car["row"]][car["column"]-1]=0
                             grid[car["row"]][car["column"]+car["length"]-1]=car["color_index"]
-                            car["column"]+=1
                 else: #vertical car
                         if grid[car["row"]+car["length"]][car["column"]]==0: #if can move down
                             grid[car["row"]][car["column"]]=0
@@ -228,9 +228,9 @@ def DFS_TryCarMove(grid,cars):
                             if DFS_TryCarMove(grid,cars)==True:
                                 return True
                             #Backtrack
+                            car["row"]-=1
                             grid[car["row"]+car["length"]][car["column"]]=0
                             grid[car["row"]][car["column"]]=car["color_index"]
-                            car["row"]-=1
 
                         if grid[car["row"]-1][car["column"]]==0: #if can move up
                             grid[car["row"]+car["length"]-1][car["column"]]=0
@@ -239,9 +239,9 @@ def DFS_TryCarMove(grid,cars):
                             if DFS_TryCarMove(grid,cars)==True:
                                 return True
                             #Backtrack
+                            car["row"]+=1
                             grid[car["row"]-1][car["column"]]=0
                             grid[car["row"]+car["length"]-1][car["column"]]=car["color_index"]
-                            car["row"]+=1
 
                 DrawBoard(grid,cell_width)
                 turtle.update()
