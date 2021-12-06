@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate static_assertions;
+
 use std::fs::File;
 use std::io::prelude::*;
 use std::env;
@@ -20,17 +23,24 @@ fn main() -> std::io::Result<()> {
     file.read_to_string(&mut contents)?;
 
     let board = Board::from_string(&contents).expect("Error while parsing input file!");
-    println!("{:#?}", board);
+    println!("{}", board);
+    println!("");
 
     // Used for profiling
     for _ in 0..100 {
         tree::bfs(board.clone());
     }
 
-    let solution = tree::bfs(board);
+    let solution = tree::bfs(board.clone());
 
+    let mut board = board;
     if let Some(solution) = solution {
-        println!("{:#?}", solution);
+        for mv in solution.into_iter().rev() {
+            board = board.apply(&mv);
+            println!("{}", mv);
+        }
+        println!("");
+        println!("{}", board);
     }
 
     Ok(())

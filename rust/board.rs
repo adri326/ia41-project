@@ -5,6 +5,9 @@ use fasthash::MetroHasher;
 // use fasthash::xx::Hasher64;
 use std::hash::Hasher;
 
+#[cfg(feature = "bitboard")]
+const_assert!(WIDTH * HEIGHT <= u64::BITS as usize);
+
 #[derive(Clone, Debug)]
 pub struct Board {
     pub cars: Vec<Car>,
@@ -256,4 +259,31 @@ fn get_bitboard(bitboard: &[bool; WIDTH * HEIGHT], x: usize, y: usize) -> bool {
 fn get_bitboard(bitboard: &u64, x: usize, y: usize) -> bool {
     let position = 1 << (x + y * WIDTH);
     bitboard & position != 0
+}
+
+impl std::fmt::Display for Board {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for y in 0..HEIGHT {
+            for x in 0..WIDTH {
+                if get_bitboard(&self.bitboard, x, y) {
+                    for (index, car) in self.cars.iter().enumerate() {
+                        if car.covers(x, y) {
+                            if let Some(d) = std::char::from_digit(index as u32, 36) {
+                                write!(f, "{}", d)?;
+                            } else {
+                                write!(f, "?")?;
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                    write!(f, " ")?;
+                }
+            }
+            if y != HEIGHT - 1 {
+                write!(f, "\n")?;
+            }
+        }
+        Ok(())
+    }
 }

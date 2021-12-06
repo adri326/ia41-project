@@ -23,6 +23,14 @@ impl Car {
             (self.x, self.y + index)
         }
     }
+
+    pub fn covers(&self, x: usize, y: usize) -> bool {
+        if let Direction::Horizontal = self.direction {
+            self.y == y && self.x <= x && self.x + self.length > x
+        } else {
+            self.x == x && self.y <= y && self.y + self.length > y
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
@@ -99,5 +107,11 @@ impl<'a> Iterator for CarIter<'a> {
                 index: self.index,
             })
         }
+    }
+}
+
+impl std::fmt::Display for CarMove {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}: {},{} -> {},{}", self.index, self.from.0, self.from.1, self.to.0, self.to.1)
     }
 }

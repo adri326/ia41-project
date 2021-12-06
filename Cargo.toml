@@ -13,6 +13,7 @@ precise_hash = []
 [dependencies]
 fasthash = "0.4.0"
 rand = "0.8"
+static_assertions = "1.1.0"
 
 [dependencies.criterion]
 version = "0.3"
