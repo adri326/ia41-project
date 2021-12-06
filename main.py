@@ -188,7 +188,7 @@ def SerializeGrid(grid):
 
 #Keep history to be able to backtrack if necessary
 history = set() #using a set for performance purpose
-
+solution = []
 #DFS : Try each possiblity and backtrack when blocked
 def DFS_TryCarMove(grid,cars):
         serializedGrid = SerializeGrid(grid)
@@ -203,45 +203,53 @@ def DFS_TryCarMove(grid,cars):
                             grid[car["row"]][car["column"]]=0
                             grid[car["row"]][car["column"]+car["length"]]=car["color_index"]
                             car["column"]+=1
+                            solution.append("Move car {car_number} from ({start_x},{start_y}) to ({goal_x},{goal_y})".format(car_number=car["color_index"],start_x=car["row"],start_y=car["column"]-1,goal_x=car["row"],goal_y=car["column"]))
                             if DFS_TryCarMove(grid,cars)==True:
                                 return True
                             #Backtrack
                             car["column"]-=1
                             grid[car["row"]][car["column"]+car["length"]]=0
                             grid[car["row"]][car["column"]]=car["color_index"]
+                            solution.pop()
 
                         if grid[car["row"]][car["column"]-1]==0: #if can move left
                             grid[car["row"]][car["column"]+car["length"]-1]=0
                             grid[car["row"]][car["column"]-1]=car["color_index"]
                             car["column"]-=1
+                            solution.append("Move car {car_number} from ({start_x},{start_y}) to ({goal_x},{goal_y})".format(car_number=car["color_index"],start_x=car["row"],start_y=car["column"]+1,goal_x=car["row"],goal_y=car["column"]))
                             if DFS_TryCarMove(grid,cars)==True:
                                 return True
                             #Backtrack
                             car["column"]+=1
                             grid[car["row"]][car["column"]-1]=0
                             grid[car["row"]][car["column"]+car["length"]-1]=car["color_index"]
+                            solution.pop()
                 else: #vertical car
                         if grid[car["row"]+car["length"]][car["column"]]==0: #if can move down
                             grid[car["row"]][car["column"]]=0
                             grid[car["row"]+car["length"]][car["column"]]=car["color_index"]
                             car["row"]+=1
+                            solution.append("Move car {car_number} from ({start_x},{start_y}) to ({goal_x},{goal_y})".format(car_number=car["color_index"],start_x=car["row"]-1,start_y=car["column"],goal_x=car["row"],goal_y=car["column"]))
                             if DFS_TryCarMove(grid,cars)==True:
                                 return True
                             #Backtrack
                             car["row"]-=1
                             grid[car["row"]+car["length"]][car["column"]]=0
                             grid[car["row"]][car["column"]]=car["color_index"]
+                            solution.pop()
 
                         if grid[car["row"]-1][car["column"]]==0: #if can move up
                             grid[car["row"]+car["length"]-1][car["column"]]=0
                             grid[car["row"]-1][car["column"]]=car["color_index"]
                             car["row"]-=1
+                            solution.append("Move car {car_number} from ({start_x},{start_y}) to ({goal_x},{goal_y})".format(car_number=car["color_index"],start_x=car["row"]+1,start_y=car["column"],goal_x=car["row"],goal_y=car["column"]))
                             if DFS_TryCarMove(grid,cars)==True:
                                 return True
                             #Backtrack
                             car["row"]+=1
                             grid[car["row"]-1][car["column"]]=0
                             grid[car["row"]+car["length"]-1][car["column"]]=car["color_index"]
+                            solution.pop()
 
                 DrawBoard(grid,cell_width)
                 turtle.update()
@@ -257,7 +265,13 @@ def DFS_TryCarMove(grid,cars):
 ################## The start of the algorithm !
 def StartAlgoDFS(grid):
     grid=Setup(grid,cars)
+    print(grid)
+    print("\n\n")
     if DFS_TryCarMove(grid,cars):
+        for line in solution:
+            print(line)
+        print("\n\n")
+        print(grid)
         sys.exit("Solved!") #TODO show solution steps
     else:
         sys.exit("Can't' be solved!")
