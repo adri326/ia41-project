@@ -60,14 +60,17 @@ impl<'a> Iterator for BoardIter<'a> {
 
 impl Board {
     pub fn from_string(string: &str) -> Option<Board> {
-        let mut string = string.chars().filter(|c| *c != '\n').collect::<Vec<_>>();
-
-        // println!("{} / {}: {:?}", string.len(), WIDTH * HEIGHT, string);
-        if string.len() > WIDTH * HEIGHT {
-            return None
-        }
-        while string.len() < WIDTH * HEIGHT {
-            string.push(' ');
+        let mut table = (0..HEIGHT).map(|_| vec![' '; WIDTH]).collect::<Vec<_>>();
+        let mut x = 0;
+        let mut y = 0;
+        for c in string.chars() {
+            if c == '\n' {
+                y += 1;
+                x = 0;
+            } else {
+                table[y][x] = c;
+                x += 1;
+            }
         }
 
         let mut cars: HashMap<usize, Car> = HashMap::new();
@@ -75,15 +78,15 @@ impl Board {
         // Find cars in string
         for y in 0..HEIGHT {
             for x in 0..WIDTH {
-                let n = string[x + y * WIDTH];
+                let n = table[y][x];
                 if n >= '0' && n <= '9' || n >= 'a' && n <= 'z' || n >= 'A' && n <= 'Z' {
                     let n = n.to_digit(36).unwrap() as usize;
                     if let None = cars.get(&n) {
                         let mut length = 0;
-                        if x < WIDTH - 1 && string[x + 1 + y * WIDTH] == string[x + y * WIDTH] {
+                        if x < WIDTH - 1 && table[y][x + 1] == table[y][x] {
                             // Horizontal
                             for x2 in x..WIDTH {
-                                if string[x2 + y * WIDTH] == string[x + y * WIDTH] {
+                                if table[y][x2] == table[y][x] {
                                     length += 1;
                                 }
                             }
@@ -96,7 +99,7 @@ impl Board {
                         } else if y < HEIGHT - 1 {
                             // Vertical
                             for y2 in y..HEIGHT {
-                                if string[x + y2 * WIDTH] == string[x + y * WIDTH] {
+                                if table[y2][x] == table[y][x] {
                                     length += 1;
                                 }
                             }

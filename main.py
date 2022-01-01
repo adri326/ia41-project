@@ -52,7 +52,7 @@ main_frame.update()
 def solve():
     solution = bfs(board)
 
-    def timer(secs):
+    def timer(millis):
         def fn():
             global board
             global canvas
@@ -60,11 +60,10 @@ def solve():
                 board = board.move(*solution.pop(0))
                 # Bad, but the documentation on how to do this better is ~gone~
                 render(canvas, board)
-                timer(secs)
-        threading.Timer(secs, fn).start()
+                timer(millis)
+        root.after(millis, fn)
 
-    timer(1)
+    timer(1000)
 
-threading.Timer(0, solve).start()
-
-root.mainloop() # TODO: remove
+root.after(100, solve)
+root.mainloop() # TODO: remove - or not?

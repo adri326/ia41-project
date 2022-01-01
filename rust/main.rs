@@ -27,9 +27,9 @@ fn main() -> std::io::Result<()> {
     println!("");
 
     // Used for profiling
-    for _ in 0..100 {
-        tree::bfs(board.clone());
-    }
+    // for _ in 0..100 {
+    //     tree::bfs(board.clone());
+    // }
 
     let solution = tree::bfs(board.clone());
 
