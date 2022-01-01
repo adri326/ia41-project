@@ -11,6 +11,7 @@ from parse import parse
 
 root = tk.Tk()
 root.title("IA41 Project: Rush Hour")
+root.geometry("500x500")
 
 main_frame = tk.Frame(root, padx=10, pady=10, bg="white")
 main_frame.grid(column=0, row=0, sticky="nwes")
@@ -52,6 +53,10 @@ main_frame.update()
 def solve():
     solution = bfs(board)
 
+    if solution == None:
+        print("No solution found!")
+        return
+
     def timer(millis):
         def fn():
             global board
@@ -65,5 +70,6 @@ def solve():
 
     timer(1000)
 
-root.after(100, solve)
+if ("--solve" in sys.argv):
+    root.after(100, solve)
 root.mainloop() # TODO: remove - or not?

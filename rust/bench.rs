@@ -26,12 +26,16 @@ pub fn bfs_benchmark(c: &mut Criterion) {
     let board_example = load_board("boards/example.txt");
     let board_trivial = load_board("boards/trivial.txt");
     let board_no_solution = load_board("boards/no_solution.txt");
+    let board_expert = load_board("boards/expert.txt");
+    let board_maximal = load_board("boards/maximal.txt");
 
     c.bench_function("bfs complex", |b| b.iter(|| tree::bfs(board_complex.clone())));
     c.bench_function("bfs simple", |b| b.iter(|| tree::bfs(board_simple.clone())));
     c.bench_function("bfs example", |b| b.iter(|| tree::bfs(board_example.clone())));
     c.bench_function("bfs trivial", |b| b.iter(|| tree::bfs(board_trivial.clone())));
     c.bench_function("bfs no_solution", |b| b.iter(|| tree::bfs(board_no_solution.clone())));
+    c.bench_function("bfs expert", |b| b.iter(|| tree::bfs(board_expert.clone())));
+    c.bench_function("bfs maximal", |b| b.iter(|| tree::bfs(board_maximal.clone())));
 }
 
 pub fn dfs_benchmark(c: &mut Criterion) {
