@@ -20,38 +20,38 @@ canvas.pack(fill="both", expand=True)
 board = Board(6, 6)
 
 try:
-    f = open("example_board",'r', encoding='utf8', errors='ignore') 
+    f = open("example_board", 'r', encoding='utf8', errors='ignore')
 
     cars_file = [[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1]]
 
     c = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]
 
-	# note: after digits from 0 to 9, the ASCII characters are :;<=>
+    # note: after digits from 0 to 9, the ASCII characters are :;<=>
 
-    for i in range (6):
-        for j in range (6) :
+    for i in range(6):
+        for j in range(6):
             c[i][j] = ord(f.read(1))-48
-            if c[i][j] >= 10 :
+            if c[i][j] >= 10:
                 c[i][j] -= 39
             print(c[i][j])
         f.read(1)
 
     f.close()
 
-    for i in range (12):
-        for j in range (6) :
-            for k in range (6) :
-                if  c[j][k] == i and cars_file[i][0] == -1 :
+    for i in range(12):
+        for j in range(6):
+            for k in range(6):
+                if  c[j][k] == i and cars_file[i][0] == -1:
                     cars_file[i][0] = k
                     cars_file[i][1] = j
                     cars_file[i][2] += 1
-                elif c[j][k] == i and cars_file[i][1] != j :
+                elif c[j][k] == i and cars_file[i][1] != j:
                     cars_file[i][2] += 1
                     cars_file[i][3] = 0
                 elif c[j][k] == i:
                     cars_file[i][2] += 1
 
-    for l in range (12):
+    for l in range(12):
         if cars_file[l][0] != -1:
             board.cars.append((cars_file[l][0],cars_file[l][1],cars_file[l][2],cars_file[l][3]))
 
