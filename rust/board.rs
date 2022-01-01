@@ -5,6 +5,8 @@ use fasthash::MetroHasher;
 // use fasthash::xx::Hasher64;
 use std::hash::Hasher;
 
+use static_assertions::const_assert;
+
 #[cfg(feature = "bitboard")]
 const_assert!(WIDTH * HEIGHT <= u64::BITS as usize);
 

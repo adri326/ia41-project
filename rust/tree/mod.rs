@@ -3,7 +3,7 @@ use super::board::{Board, BoardIter};
 #[allow(unused_imports)]
 use super::{WIDTH, HEIGHT};
 use super::car::CarMove;
-use std::collections::{VecDeque, HashSet};
+use std::collections::{VecDeque, HashSet, HashMap};
 use std::rc::Rc;
 
 pub mod hash;
@@ -41,13 +41,24 @@ pub fn bfs(initial: Board) -> Option<Vec<CarMove>> {
     None
 }
 
-fn dfs_recurse(board: &Board, depth: usize) -> Option<Vec<CarMove>> {
+fn dfs_recurse(board: &Board, depth: usize, visited: &mut HashMap<u64, usize, hash::IdentityHashBuilder>) -> Option<Vec<CarMove>> {
     for mv in board.iter() {
         let new_board = board.apply(&mv);
         if target(&new_board) {
             return Some(vec![mv]);
         } else if depth > 0 {
-            match dfs_recurse(&new_board, depth - 1) {
+            let hash = new_board.get_board_hash();
+            if let Some(v) = visited.get(&hash) {
+                if *v >= depth {
+                    continue;
+                } else {
+                    visited.insert(hash, depth);
+                }
+            } else {
+                visited.insert(hash, depth);
+            }
+
+            match dfs_recurse(&new_board, depth - 1, visited) {
                 Some(mut arr) => {
                     arr.push(mv);
                     return Some(arr);
@@ -61,7 +72,9 @@ fn dfs_recurse(board: &Board, depth: usize) -> Option<Vec<CarMove>> {
 }
 
 pub fn dfs(initial: Board, max_depth: usize) -> Option<Vec<CarMove>> {
-    match dfs_recurse(&initial, max_depth) {
+    let mut visited: HashMap<u64, usize, hash::IdentityHashBuilder> = HashMap::with_hasher(hash::IdentityHashBuilder::new());
+
+    match dfs_recurse(&initial, max_depth, &mut visited) {
         Some(mut arr) => {
             arr.reverse();
             Some(arr)
@@ -72,10 +85,11 @@ pub fn dfs(initial: Board, max_depth: usize) -> Option<Vec<CarMove>> {
 
 pub fn iddfs(initial: Board, max_depth: Option<usize>) -> Option<Vec<CarMove>> {
     let max_depth = max_depth.unwrap_or(usize::MAX);
+    let mut visited: HashMap<u64, usize, hash::IdentityHashBuilder> = HashMap::with_hasher(hash::IdentityHashBuilder::new());
 
     for depth in 0..max_depth {
-        if let Some(mut res) = dfs_recurse(&initial, depth) {
-            res.reverse();
+        if let Some(mut res) = dfs_recurse(&initial, depth, &mut visited) {
+            // res.reverse();
             return Some(res);
         }
     }

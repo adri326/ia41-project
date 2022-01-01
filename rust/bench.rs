@@ -23,11 +23,13 @@ fn load_board(path: &str) -> Board {
 pub fn bfs_benchmark(c: &mut Criterion) {
     let board_complex = load_board("boards/complex.txt");
     let board_simple = load_board("boards/simple.txt");
+    let board_example = load_board("boards/example.txt");
     let board_trivial = load_board("boards/trivial.txt");
     let board_no_solution = load_board("boards/no_solution.txt");
 
     c.bench_function("bfs complex", |b| b.iter(|| tree::bfs(board_complex.clone())));
     c.bench_function("bfs simple", |b| b.iter(|| tree::bfs(board_simple.clone())));
+    c.bench_function("bfs example", |b| b.iter(|| tree::bfs(board_example.clone())));
     c.bench_function("bfs trivial", |b| b.iter(|| tree::bfs(board_trivial.clone())));
     c.bench_function("bfs no_solution", |b| b.iter(|| tree::bfs(board_no_solution.clone())));
 }
@@ -35,10 +37,12 @@ pub fn bfs_benchmark(c: &mut Criterion) {
 pub fn dfs_benchmark(c: &mut Criterion) {
     let board_complex = load_board("boards/complex.txt");
     let board_simple = load_board("boards/simple.txt");
+    let board_example = load_board("boards/example.txt");
     let board_trivial = load_board("boards/trivial.txt");
 
-    // c.bench_function("iddfs complex", |b| b.iter(|| tree::iddfs(board_complex.clone(), None)));
+    c.bench_function("iddfs complex", |b| b.iter(|| tree::iddfs(board_complex.clone(), None)));
     c.bench_function("iddfs simple", |b| b.iter(|| tree::iddfs(board_simple.clone(), None)));
+    c.bench_function("iddfs example", |b| b.iter(|| tree::iddfs(board_example.clone(), None)));
     c.bench_function("iddfs trivial", |b| b.iter(|| tree::iddfs(board_trivial.clone(), None)));
 }
 
