@@ -1,10 +1,13 @@
 import sys
 import tkinter as tk
 import threading
+from os.path import exists
+
 from render import render
 from board import Board
 from canvas import ResizingCanvas
 from solve import bfs
+from parse import parse
 
 root = tk.Tk()
 root.title("IA41 Project: Rush Hour")
@@ -17,45 +20,17 @@ canvas = ResizingCanvas(main_frame, bg="white")
 canvas.grid(column=0, row=0, sticky="nwes")
 canvas.pack(fill="both", expand=True)
 
-board = Board(6, 6)
+board = None
 
-try:
-    f = open("example_board", 'r', encoding='utf8', errors='ignore')
+if len(sys.argv) > 1:
+    if exists(sys.argv[1]):
+        f = open(sys.argv[1], 'r', encoding='utf8', errors='ignore')
+        string = f.read()
+        f.close()
+        board = parse(string)
 
-    cars_file = [[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1],[-1,-1,0,1]]
-
-    c = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]]
-
-    # note: after digits from 0 to 9, the ASCII characters are :;<=>
-
-    for i in range(6):
-        for j in range(6):
-            c[i][j] = ord(f.read(1))-48
-            if c[i][j] >= 10:
-                c[i][j] -= 39
-            print(c[i][j])
-        f.read(1)
-
-    f.close()
-
-    for i in range(12):
-        for j in range(6):
-            for k in range(6):
-                if  c[j][k] == i and cars_file[i][0] == -1:
-                    cars_file[i][0] = k
-                    cars_file[i][1] = j
-                    cars_file[i][2] += 1
-                elif c[j][k] == i and cars_file[i][1] != j:
-                    cars_file[i][2] += 1
-                    cars_file[i][3] = 0
-                elif c[j][k] == i:
-                    cars_file[i][2] += 1
-
-    for l in range(12):
-        if cars_file[l][0] != -1:
-            board.cars.append((cars_file[l][0],cars_file[l][1],cars_file[l][2],cars_file[l][3]))
-
-except BaseException:
+if board == None:
+    board = Board(6, 6)
     board.cars.append((3, 2, 2, True)) # x, y, length, horizontal
     board.cars.append((0, 0, 2, True))
     board.cars.append((2, 0, 2, True))
