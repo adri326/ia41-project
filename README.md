@@ -17,3 +17,15 @@ python main.py boards/example.txt
 ```
 
 You can optionally add the `--solve` option to let the included AI solve the position.
+
+## Rust version
+
+The rust version requires the `cargo` command-line tool to be compiled.
+
+Run the following to run the AI on a given position:
+
+```
+cargo run --release -- boards/example.txt
+```
+
+You can also run the integrated benchmarks with `cargo bench`.
